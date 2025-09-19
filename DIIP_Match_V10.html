@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Intern-Company Matcher</title>
+  <style>
+    /* === Base Reset & Typography === */
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f7f9fb;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      padding: 1.5rem 0 0.5rem 0;
+      background: #2563eb;
+      color: white;
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    /* === Info Box === */
+    .info-box {
+      background: #e0e7ff;
+      border-left: 6px solid #2563eb;
+      padding: 1rem 1.2rem;
+      margin: 1rem auto 2rem auto;
+      max-width: 900px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    /* === Container === */
+    .container {
+      max-width: 900px;
+      margin: 0 auto 2rem auto;
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* === Form === */
+    form label {
+      display: block;
+      margin-bottom: 1.2rem;
+      font-weight: 600;
+    }
+
+    select, button {
+      width: 100%;
+      padding: 0.6rem;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-top: 0.3rem;
+      font-size: 1rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    select:focus, button:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.3);
+      outline: none;
+    }
+
+    select[multiple] {
+      height: 10rem;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      margin-top: 1.5rem;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    /* === Results === */
+    .result {
+      margin-top: 2rem;
+    }
+
+    .result h2 {
+      margin-bottom: 1rem;
+      font-size: 1.4rem;
+      color: #2563eb;
+    }
+    
+    .company-skills {
+      color: #6b7280; /* Tailwind gray-500 */
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      background: #f1f5f9;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    li b {
+      font-size: 1.1rem;
+      color: #111827;
+    }
+
+    .overlap {
+      color: #16a34a;
+      font-weight: 500;
+    }
+
+    .missing {
+      color: #dc2626;
+      font-weight: 500;
+    }
+
+    .meta {
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 0.4rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Intern → Host Company Matcher</h1>
+
+  <div class="info-box">
+    <p>
+      This tool is designed to help align interns to host companies. Taking the information 
+      provided by the intern and entering it into the relevant boxes below will return a list 
+      of companies, ranked by alignment. This alignment is currently based only on 
+      <strong>Location, Stream, Area of Engineering Specialty</strong>.
+    </p>
+    <p>
+      With the score, there is a spreadsheet with each company arranged alphabetically from the 
+      state they are in. You can enter the intern’s name and score into this spreadsheet. The result 
+      should be a spreadsheet with a number of interns under each company.
+    </p>
+  </div>
+
+  <div class="container">
+    <form id="matchForm">
+      <label>
+        Primary Location:
+        <select id="location" required>
+          <option value="">--Select--</option>
+          <option value="All">All Locations</option>
+          <option>ACT</option>
+          <option>NSW</option>
+          <option>QLD</option>
+          <option>SA</option>
+          <option>VIC</option>
+          <option>TAS</option>
+          <option>NT</option>
+          <option>WA</option>
+        </select>
+      </label>
+
+      <label>
+        Additional Locations (hold CTRL/CMD to select multiple):
+        <select id="additionalLocations" multiple size="8">
+          <option>ACT</option>
+          <option>NSW</option>
+          <option>QLD</option>
+          <option>SA</option>
+          <option>VIC</option>
+          <option>TAS</option>
+          <option>NT</option>
+          <option>WA</option>
+        </select>
+      </label>
+
+      <label>
+        Stream:
+        <select id="stream" required>
+          <option value="">--Select--</option>
+          <option>Engineering</option>
+          <option>Technology</option>
+          <option>Both</option>
+        </select>
+      </label>
+
+      <label>
+        Areas of Engineering (hold CTRL/CMD to select multiple):
+        <select id="areas" multiple size="10" required>
+          <option value="0">Aerospace/Aeronautical Eng</option>
+          <option value="1">Chemical Eng</option>
+          <option value="2">Civil Eng</option>
+          <option value="3">Data Science</option>
+          <option value="4">Electrical/Electronics Eng</option>
+          <option value="5">Industrial/Manufacturing Eng</option>
+          <option value="6">Machine Learning</option>
+          <option value="7">Materials Eng</option>
+          <option value="8">Mechatronic Eng</option>
+          <option value="9">Mechanical Eng</option>
+          <option value="10">Software Eng</option>
+          <option value="11">Systems Eng</option>
+          <option value="12">Information Communication Technology</option>
+          <option value="13">Cyber Security</option>
+          <option value="14">Computer Science</option>
+          <option value="15">Software</option>
+          <option value="16">Systems</option>
+          <option value="17">Data Analytics</option>
+          <option value="18">Artificial Intelligence</option>
+          <option value="19">Robotics</option>
+        </select>
+      </label>
+
+      <button type="submit">Find Matches</button>
+    </form>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+
+    const areasMap = {
+      0:"Aerospace/Aeronautical Eng",
+      1:"Chemical Eng",
+      2:"Civil Eng",
+      3:"Data Science",
+      4:"Electrical/Electronics Eng",
+      5:"Industrial/Manufacturing Eng",
+      6:"Machine Learning",
+      7:"Materials Eng",
+      8:"Mechatronic Eng",
+      9:"Mechanical Eng",
+      10:"Software Eng",
+      11:"Systems Eng",
+      12:"Information Communication Technology",
+      13:"Cyber Security",
+      14:"Computer Science",
+      15:"Software",
+      16:"Systems",
+      17:"Data Analytics",
+      18:"Artificial Intelligence",
+      19:"Robotics",
+      20:"No Application"
+    };
+
+    const companies = [
+      { name: "New Frontier Technologies", location: "ACT", stream: "Engineering", areas: [0,5,7,11] },
+      { name: "New Frontier Technologies", location: "ACT", stream: "Technology", areas: [12,13,14,15,16] },
+      { name: "Ionize", location: "ACT", stream: "Engineering", areas: [10,11] },
+      { name: "Interrupt Labs", location: "ACT", stream: "Technology", areas: [13,14] },
+      { name: "Department 13 International", location: "ACT", stream: "Technology", areas: [15,16] },
+      { name: "Department 13 International", location: "ACT", stream: "Engineering", areas: [10,11] },
+      { name: "Secure Bits", location: "ACT", stream: "Engineering", areas: [4,5,8,9,10,11] },
+      { name: "Viden Labs", location: "ACT", stream: "Technology", areas: [12,13,15,16] },
+
+      { name: "Sitle", location: "NSW", stream: "Technology", areas: [6,13,18,15] },
+      { name: "Jenkins Engineering Defence Systems (JEDS)", location: "NSW", stream: "Technology", areas: [15] },
+      { name: "Jenkins Engineering Defence Systems (JEDS)", location: "NSW", stream: "Engineering", areas: [4,10] },
+      { name: "TKMS Sonartech Atlas", location: "NSW", stream: "Engineering", areas: [10,11] },
+      { name: "TKMS Sonartech Atlas", location: "NSW", stream: "Technology", areas: [18,3,6,15] },
+      { name: "Applied Virtual Simulation", location: "NSW", stream: "Engineering", areas: [4,5,8] },
+      { name: "Applied Virtual Simulation", location: "NSW", stream: "Technology", areas: [14,15,16] },
+      { name: "Hargrave Technologies", location: "NSW", stream: "UNKNOWN", areas: [20] },
+      { name: "Ron Allum Deepsea Services (RADS)", location: "NSW", stream: "Engineering", areas: [4,8,9] },
+      { name: "ANT61", location: "NSW", stream: "Engineering", areas: [10] },
+      { name: "MagnaTerra Limited", location: "NSW", stream: "Technology", areas: [17,3,15] },
+      { name: "Spiral Blue", location: "NSW", stream: "Engineering", areas: [0,8,10,11] },
+      { name: "Murray Consulting Solutions", location: "NSW", stream: "Engineering", areas: [0,4,8,10,11] },
+      { name: "Constrcution and Remediation Advisory Services (CARAS)", location: "NSW", stream: "Engineering", areas: [2] },
+      { name: "Griffin Marine Services", location: "NSW", stream: "UNKNOWN", areas: [20] },
+      { name: "Switchmode power supplies", location: "NSW", stream: "Engineering", areas: [4] },
+      { name: "Advanced Navigation", location: "NSW", stream: "Engineering", areas: [4,8,9,10] },
+      { name: "Saber Astronautics Australia", location: "NSW", stream: "Engineering", areas: [0,8,10] },
+      { name: "Saber Astronautics Australia", location: "NSW", stream: "Technology", areas: [13,14,3,12,6,15] },
+      { name: "Atto Devices", location: "NSW", stream: "Engineering", areas: [4,5,8,10] },
+      { name: "Atto Devices", location: "NSW", stream: "Technology", areas: [18,14,3,17,6,12,15] },
+      { name: "Ocius Technology", location: "NSW", stream: "Engineering", areas: [8,10] },
+      { name: "Ocius Technology", location: "NSW", stream: "Engineering", areas: [4,8] },
+      { name: "Ocius Technology", location: "NSW", stream: "Engineering", areas: [0,8,9] },
+
+      { name: "Cognito Digital", location: "QLD", stream: "Technology", areas: [18,13,17,12,15] },
+      { name: "Raider Targetry", location: "QLD", stream: "Technology", areas: [19,15,16,6,12,3,17,13,14,18] },
+      { name: "Raider Targetry", location: "QLD", stream: "Engineering", areas: [4,5,7,8,9,10,11] },
+      { name: "Cyborg Dynamics Engineering", location: "QLD", stream: "UNKNOWN", areas: [20] },
+      { name: "Dingo Software", location: "QLD", stream: "Technology", areas: [18,14,13,17,3,12,6,15] },
+      { name: "Southvolt (Feline Industries)", location: "QLD", stream: "Engineering", areas: [1,8] },
+      { name: "Praxis Aerospace", location: "QLD", stream: "Engineering", areas: [0,4,9,10] },
+      { name: "BIA5", location: "QLD", stream: "Technology", areas: [12,19,15,16] },
+      { name: "BIA5", location: "QLD", stream: "Engineering", areas: [4,8,10] },
+      { name: "Zone Manufacturing", location: "QLD", stream: "UNKNOWN", areas: [20] },
+      { name: "Stratoship", location: "QLD", stream: "Engineering", areas: [0,8,9] },
+      { name: "Black Sky Aerospace", location: "QLD", stream: "Technology", areas: [18,17,19,15] },
+      { name: "Black Sky Aerospace", location: "QLD", stream: "Engineering", areas: [0,1,4,8,9] },
+      { name: "Frontline Manufacturing", location: "QLD", stream: "Engineering", areas: [5,8,9] },
+      { name: "Ryan Aerospace", location: "QLD", stream: "Engineering", areas: [4,5,8,9,10] },
+      { name: "Outer Loop Engineering", location: "QLD", stream: "Engineering", areas: [0,5,9] },
+
+      { name: "Levett Engineering", location: "SA", stream: "UNKNOWN", areas: [20] },
+      { name: "NQRY", location: "SA", stream: "Engineering", areas: [10] },
+      { name: "NQRY", location: "SA", stream: "Technology", areas: [14,12,15] },
+      { name: "Rosebank Engineering", location: "SA", stream: "Engineering", areas: [0,1,9] },
+      { name: "MacTaggart Scott Australia", location: "SA", stream: "Engineering", areas: [9] },
+      { name: "DEWC Services", location: "SA", stream: "Engineering", areas: [4,6,10,11] },
+      { name: "DEWC Services", location: "SA", stream: "Technology", areas: [18,14,3,6,15] },
+      { name: "Ultra Maritime Australia", location: "SA", stream: "Engineering", areas: [4,8,10,11] },
+      { name: "Supashock Advanced Technologies", location: "SA", stream: "Engineering", areas: [4,5,8,9,10,19,18] },
+      { name: "Airspeed", location: "SA", stream: "Engineering", areas: [0] },
+      { name: "Starke-AMG", location: "SA", stream: "UNKNOWN", areas: [20] },
+      { name: "Daronmont Technologies", location: "SA", stream: "Technology", areas: [14,15] },
+      { name: "Daronmont Technologies", location: "SA", stream: "Engineering", areas: [4] },
+      { name: "Sovereign Propulsion Systems", location: "SA", stream: "Engineering", areas: [0,4,5,8,9] },
+      { name: "Saber Astronautics Australia", location: "SA", stream: "Engineering", areas: [0,8,10] },
+      { name: "Saber Astronautics Australia", location: "SA", stream: "Technology", areas: [14,13,3,12,6,15] },
+
+      { name: "PHM Technology", location: "VIC", stream: "Technology", areas: [18,14,3,17,6] },
+      { name: "PHM Technology", location: "VIC", stream: "Technology", areas: [18,14,12,15,16] },
+      { name: "Sentient Vision Systems (Shield AI)", location: "VIC", stream: "Engineering", areas: [0,4,8,9] },
+      { name: "Sentient Vision Systems (Shield AI)", location: "VIC", stream: "Technology", areas: [18,14,17,6,19,15] },
+      { name: "Arkeus", location: "VIC", stream: "Technology", areas: [19,15,16,6,12,3,17,14,18] },
+      { name: "Arkeus", location: "VIC", stream: "Engineering", areas: [0,4,5,9,10,11] },
+      { name: "AMOG Consulting", location: "VIC", stream: "Engineering", areas: [8,9,10,11] },
+      { name: "Stahl Metall", location: "VIC", stream: "Engineering", areas: [0,4,5,9,11] },
+      { name: "Advanced Composite Structures (ACS)", location: "VIC", stream: "Engineering", areas: [0,7,9] },
+      { name: "Chemring Australia", location: "VIC", stream: "Engineering", areas: [0,1,4,8,9] },
+      { name: "C4I", location: "VIC", stream: "Engineering", areas: [4,10,11] },
+      { name: "A W Bell Machinery", location: "VIC", stream: "Engineering", areas: [5,8,9,11] },
+      { name: "DefendTex Research Labs", location: "VIC", stream: "Engineering", areas: [0,1,4,7,8,9,10] },
+      { name: "DefendTex Research Labs", location: "VIC", stream: "Technology", areas: [14,13,6,19,15,16] },
+      { name: "Pelican Products", location: "VIC", stream: "Engineering", areas: [5,9] },
+      { name: "Supacat", location: "VIC", stream: "UNKNOWN", areas: [20] },
+
+      { name: "Autonomous Maritime College (AMC) Search", location: "TAS", stream: "Technology", areas: [14,3,17,12,19,15,16] },
+      { name: "Sentinel Boats", location: "TAS", stream: "Engineering", areas: [5] },
+      { name: "Currawong Engineering", location: "TAS", stream: "Engineering", areas: [4] },
+      { name: "CBG Systems", location: "TAS", stream: "Engineering", areas: [0,9] },
+
+      { name: "NT Electrical Group", location: "NT", stream: "Engineering", areas: [4] },
+      { name: "Industry Capability Network Northern Territory", location: "NT", stream: "Technology", areas: [18,13,17,3,15] },
+
+      { name: "Chironix", location: "WA", stream: "Engineering", areas: [4,8,9,10] },
+      { name: "Griffin Marine Services", location: "WA", stream: "UNKNOWN", areas: [20] },
+      { name: "Innovaero", location: "WA", stream: "Engineering", areas: [0,4,5,8] },
+      { name: "Orbital UAV", location: "WA", stream: "Engineering", areas: [0,4,9,10] },
+
+    ];
+
+
+    document.getElementById("matchForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const loc = document.getElementById("location").value;
+      const addLocs = Array.from(document.getElementById("additionalLocations").selectedOptions).map(o => o.value);
+      const stream = document.getElementById("stream").value;
+      const studentAreas = Array.from(document.getElementById("areas").selectedOptions).map(o => parseInt(o.value));
+
+      const scored = companies
+        .filter(c => {
+          const locationOK = loc === "All" || c.location === loc || addLocs.includes(c.location);
+          const streamOK = stream === "Both" || c.stream === "Both" || c.stream === stream;
+          return locationOK && streamOK;
+        })
+        .map(c => {
+          const overlap = c.areas.filter(a => studentAreas.includes(a));
+          const missing = studentAreas.filter(a => !c.areas.includes(a));
+          return { ...c, score: overlap.length, overlap, missing };
+        })
+        .sort((a, b) => b.score - a.score);
+
+      const resultDiv = document.getElementById("result");
+      if (scored.length > 0) {
+        let output = "<h2>Potential Matches (Ranked)</h2><ul>";
+        scored.forEach(c => {
+        output += `<li>
+          <b>${c.name}</b> <span class="meta">(${c.location}, ${c.stream})</span><br>
+          ⭐ Score: ${c.score}<br>
+          ✅ <span class="overlap">Overlap:</span> ${c.overlap.map(i => areasMap[i]).join(", ") || "None"}<br>
+          ❌ <span class="missing">Missing:</span> ${c.missing.map(i => areasMap[i]).join(", ") || "None"}<br>
+          <div class="company-skills">Company Required Skills: ${c.areas.map(i => areasMap[i]).join(", ")}</div>
+        </li>`;
+        });
+        output += "</ul>";
+        resultDiv.innerHTML = output;
+      } else {
+        resultDiv.innerHTML = "<h2>No suitable company found.</h2>";
+      }
+    });
+  </script>
+</body>
+</html>
